@@ -1,0 +1,93 @@
+pragma solidity ^0.8.0;
+
+contract AadharCard{ 	//the contract is named AadharCard
+
+    address deployer;
+
+    constructor(){
+        deployer = msg.sender; 
+    }
+
+    struct AadharDetails{   	//struct where all the details of one user is stored togther
+        string aadhar_number;
+        string name;
+        string dob;
+        string gender;
+        string residential_address;
+        address wallet_address;
+    }
+
+    mapping (uint => AadharDetails) AadharDetailsMapping;   //mapping where the entry number is the key and the details enetered is the value
+
+    modifier onlyOwner() {    //modifier that lets only the deployer (account deploying the contract) to access a function
+        require(msg.sender == deployer);
+        _;
+    }
+    
+    //arrays for each of the fields in the aadhar details
+    string[] aadhar_number_array;
+    string[] name_array;
+    string[] dob_array;
+    string[] gender_array;
+    string[] residential_address_array;
+    address[] wallet_address_array;
+
+    uint count = 0; //variable that keeps track of how many entries have happened so far
+
+    //function to let user add aadhar details to the blockchain
+    function set(
+        string memory aadhar_number, 
+        string memory name,
+        string memory dob,
+        string memory gender,
+        string memory residential_address
+        ) 
+        public 
+        {
+        //adding the details in the form of AadharDetails struct to the AadharDetailsMapping mapping
+        AadharDetailsMapping[count+1] = AadharDetails(
+            aadhar_number,
+            name,
+            dob,
+            gender,
+            residential_address,
+            msg.sender
+            );
+        
+        //adding each of field to the resepctive field's array
+        aadhar_number_array.push(aadhar_number);
+        name_array.push(name);
+        dob_array.push(dob);
+        gender_array.push(gender);
+        residential_address_array.push(residential_address);
+        wallet_address_array.push(msg.sender);
+        count++;
+    }
+
+    //function to access the aadhar detail entries made so far with the entry number
+    function get(
+        uint entry_number
+        ) 
+        public 
+        onlyOwner 
+        returns (
+        string memory, 
+        string memory,
+        string memory,
+        string memory,
+        string memory,
+        address
+        )
+        {
+        //returns the details of that particular entry as a tuple
+        return (
+            aadhar_number_array[entry_number-1],
+            name_array[entry_number-1],
+            dob_array[entry_number-1],
+            gender_array[entry_number-1],
+            residential_address_array[entry_number-1],
+            wallet_address_array[entry_number-1]
+            );
+    }
+
+}
